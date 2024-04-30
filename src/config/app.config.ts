@@ -23,6 +23,11 @@ export interface AppConfig {
   jwt: {
     secret: string;
     expiresIn: string;
+  },
+  cache: {
+    type: "database" | "redis" | "ioredis" | "ioredis/cluster",
+    alwaysEnabled: boolean,
+    duration: number;
   }
 }
 
@@ -66,5 +71,10 @@ export default (): AppConfig => ({
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRATION_TIME
+  },
+  cache: {
+    type: 'ioredis',
+    alwaysEnabled: false,
+    duration: 5 * 60 * 1000
   }
 });

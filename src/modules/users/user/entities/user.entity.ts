@@ -3,8 +3,9 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  UpdateDateColumn, OneToMany
 } from 'typeorm';
+import { Article } from '../../../articles/article/entities/article.entity';
 
 @Entity({ schema: 'public', name: 'users' })
 export class User {
@@ -16,6 +17,9 @@ export class User {
 
   @Column()
   email: string;
+
+  @OneToMany(() => Article, (article) => article.author)
+  articles: Article[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

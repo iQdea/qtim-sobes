@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
 import { UserModule } from '../users/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../config/app.config';
+import { UserService } from '../users/user/user.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { AppConfig } from '../../config/app.config';
       }),
     }),
   ],
-  providers: [JwtAuthGuard, AuthService, GoogleOauthStrategy],
+  providers: [JwtAuthGuard, AuthService, GoogleOauthStrategy, UserService],
   exports: [JwtAuthGuard],
   controllers: [AuthController, GoogleOauthController],
 })

@@ -1,14 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/user/dto/create-user.dto';
-import { User } from '../users/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { UserService } from '../users/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    @Inject('USER_REPOSITORY') private userRepository: Repository<User>,
+    private readonly userService: UserService
   ) {}
 
   generateJwt(payload) {
@@ -33,10 +32,7 @@ export class AuthService {
 
   async registerUser(user: CreateUserDto) {
     try {
-      const newUser = this.userRepository.create(user);
-
-      await this.userRepository.save(newUser);
-
+      const newUser = await this.userService.create(user)
       return this.generateJwt({
         sub: newUser.uuid,
       });
@@ -45,8 +41,8 @@ export class AuthService {
     }
   }
 
-  async findUserByEmail(email) {
-    const user = await this.userRepository.findOne({ where: { email } });
+  async findUserByEmail(email: string) {
+    const user = await this.userService.findOneByEmail(email);
 
     if (!user) {
       return null;

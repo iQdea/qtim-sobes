@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { Repository } from 'typeorm';
+import { Article } from './entities/article.entity';
+import { UserService } from '../../users/user/user.service';
 
 @Injectable()
 export class ArticleService {
-  create(createArticleDto: CreateArticleDto) {
-    if (![
-      createArticleDto?.title,
-      createArticleDto?.description,
-      createArticleDto?.publishedAt,
-      createArticleDto?.createdBy,
-    ].every(Boolean)) {
-      throw new Error('Invalid article');
-    }
-    return 'This action adds a new article';
+  constructor(
+    @Inject('ARTICLE_REPOSITORY') private articleRepository: Repository<Article>,
+    private readonly userService: UserService
+  ) {}
+
+  async create(article: CreateArticleDto) {
+    const newArticle = this.articleRepository.create({
+      title: article.title,
+      description: article.description,
+      author: await this.userService.findOne(article.authorId)
+    });
+    return await this.articleRepository.save(newArticle);
   }
 
   findAll() {
@@ -25,14 +30,6 @@ export class ArticleService {
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
-    if (![
-      updateArticleDto?.title,
-      updateArticleDto?.description,
-      updateArticleDto?.publishedAt,
-      updateArticleDto?.createdBy,
-    ].some(Boolean)) {
-      throw new Error('Invalid article');
-    }
     return `This action updates a #${id} article`;
   }
 

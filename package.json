@@ -17,7 +17,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "typeorm:run-migrations": "env-cmd npm run typeorm migration:run -- -d ./src/config/migration.config.ts",
+    "typeorm:generate-migration": "env-cmd npm run typeorm -- -d ./src/config/migration.config.ts migration:generate ./migrations/%npm_config_name%",
+    "typeorm:create-migration": "env-cmd npm run typeorm -- migration:create ./migrations/%npm_config_name%",
+    "typeorm:revert-migration": "env-cmd npm run typeorm -- -d ./src/config/migration.config.ts migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -30,6 +35,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "@types/passport-google-oauth2": "^0.1.8",
     "@types/passport-jwt": "^4.0.1",
+    "ioredis": "^5.4.1",
     "joi": "^17.13.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-jwt": "^4.0.1",
@@ -48,6 +54,7 @@
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "env-cmd": "^10.1.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

@@ -1,10 +1,9 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { User } from '../../users/user/entities/user.entity';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../config/app.config';
+import { UserService } from '../../users/user/user.service';
 
 export type JwtPayload = {
   sub: string;
@@ -13,8 +12,8 @@ export type JwtPayload = {
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    @Inject('USER_REPOSITORY') private userRepository: Repository<User>,
-    private readonly configService: ConfigService<AppConfig, true>
+    private readonly configService: ConfigService<AppConfig, true>,
+    private readonly userService: UserService
   ) {
     const extractJwtFromCookie = (req) => {
       let token = null;
@@ -32,9 +31,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.userRepository.findOne({
-      where: { uuid: payload.sub }
-    });
+    const user = await this.userService.findOne(payload.sub);
 
     if (!user) throw new UnauthorizedException('Please log in to continue');
 

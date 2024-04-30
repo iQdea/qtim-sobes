@@ -4,7 +4,6 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-op
 import { DataSourceOptions } from 'typeorm';
 import config from './app.config';
 
-
 export function typeormConfig(): TypeOrmModuleOptions {
   return {
     type: 'postgres',
@@ -12,7 +11,9 @@ export function typeormConfig(): TypeOrmModuleOptions {
     autoLoadEntities: true,
     url: config().database,
     entities: [User, Article],
-    synchronize: config().env === 'development',
+    synchronize: false, // config().env === 'development',
+    cache: config().cache,
+    migrations: ["*/migrations/*{.ts,.js}"]
   }
 }
 export function getDataSourceOptions(): DataSourceOptions {
