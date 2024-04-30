@@ -1,18 +1,15 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { Injectable } from '@nestjs/common';
-import { googleOauthConfig } from './google-oauth.config';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '../../../config/app.config';
 
 @Injectable()
 export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor() {
-    super({
-      // TODO: use DI for config
-      clientID: googleOauthConfig().clientID,
-      clientSecret: googleOauthConfig().clientSecret,
-      callbackURL: googleOauthConfig().callbackURL,
-      scope: ['profile', 'email'],
-    });
+  constructor(
+    private readonly configService: ConfigService<AppConfig, true>,
+  ) {
+    super(configService.get('oauth.google', { infer: true }));
   }
 
   async validate(

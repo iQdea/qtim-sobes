@@ -2,23 +2,24 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleOauthController } from './google-oauth/google-oauth.controller';
-import { ConfigModule } from '@nestjs/config';
 import { GoogleOauthStrategy } from './google-oauth/google-oauth.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
-import { jwtAuthConfig } from './jwt-auth/jwt-auth.config';
 import { UserModule } from '../users/user/user.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppConfig } from '../../config/app.config';
 
 @Module({
   imports: [
     UserModule,
-    ConfigModule.forRoot(),
     JwtModule.registerAsync({
-      useFactory: async () => ({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService<AppConfig, true>) => ({
         global: true,
-        secret: jwtAuthConfig().secret,
+        secret: configService.get('jwt.secret', { infer: true }),
         signOptions: {
-          expiresIn: jwtAuthConfig().expiresIn,
+          expiresIn: configService.get('jwt.expiresIn', { infer: true }),
         },
       }),
     }),

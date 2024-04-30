@@ -1,11 +1,15 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { GoogleOauthGuard } from './google-oauth.guard';
-import { googleOauthConfig } from './google-oauth.config';
 import { AuthService } from '../auth.service';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '../../../config/app.config';
 
 @Controller('google-oauth')
 export class GoogleOauthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService<AppConfig, true>
+  ) {}
 
   @Get()
   @UseGuards(GoogleOauthGuard)
@@ -16,13 +20,8 @@ export class GoogleOauthController {
   async authRedirect(@Req() req, @Res() res) {
     const token = await this.authService.signInUp(req.user);
 
-    res.cookie('access_token', token, {
-      // TODO: move to config
-      maxAge: 2592000000,
-      sameSite: true,
-      secure: false,
-    });
+    res.cookie('access_token', token, this.configService.get('cookie'));
 
-    res.redirect(googleOauthConfig().webUrl);
+    res.redirect(this.configService.get('webUrl'));
   }
 }
