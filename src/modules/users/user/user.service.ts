@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserResponseWithIdDto } from './dto/user-response.dto';
+import { merge } from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -16,11 +17,7 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  async findOne(uuid: string) {
+  async findOne(uuid: string): Promise<UserResponseWithIdDto> {
     return await this.userRepository.findOneOrFail({
       where: {
         uuid
@@ -28,7 +25,7 @@ export class UserService {
     });
   }
 
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string): Promise<UserResponseWithIdDto> {
     return await this.userRepository.findOne({
       where: {
         email
@@ -36,11 +33,14 @@ export class UserService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(uuid: string, data: UpdateUserDto): Promise<UserResponseWithIdDto> {
+    let user = await this.findOne(uuid);
+    user = merge(user, data);
+    await this.userRepository.update({ uuid }, data)
+    return user;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async remove(uuid: string): Promise<void> {
+    await this.userRepository.delete({ uuid });
   }
 }

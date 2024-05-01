@@ -18,11 +18,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "ts-node ./node_modules/typeorm/cli",
-    "typeorm:run-migrations": "env-cmd npm run typeorm migration:run -- -d ./src/config/migration.config.ts",
-    "typeorm:generate-migration": "env-cmd npm run typeorm -- -d ./src/config/migration.config.ts migration:generate ./migrations/%npm_config_name%",
-    "typeorm:create-migration": "env-cmd npm run typeorm -- migration:create ./migrations/%npm_config_name%",
-    "typeorm:revert-migration": "env-cmd npm run typeorm -- -d ./src/config/migration.config.ts migration:revert"
+    "typeorm": "env-cmd npx typeorm -d dist/src/config/migration.config.js",
+    "typeorm:run-migrations": "npm run typeorm migration:run --",
+    "typeorm:generate-migration": "npm run typeorm -- migration:generate ./migrations/%npm_config_name%",
+    "typeorm:create-migration": "npm run typeorm -- migration:create ./migrations/%npm_config_name%",
+    "typeorm:revert-migration": "npm run typeorm -- migration:revert",
+    "typeorm:delete-migrations": "rm -rf migrations/*-*.ts dist/migrations/*-*.*"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -40,6 +41,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cls-rtracer": "^2.6.3",
+    "cookie-parser": "^1.4.6",
     "ioredis": "^5.4.1",
     "joi": "^17.13.0",
     "nestjs-pino": "^4.0.0",
@@ -55,6 +57,7 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",

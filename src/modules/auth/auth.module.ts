@@ -9,6 +9,7 @@ import { UserModule } from '../users/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../config/app.config';
 import { UserService } from '../users/user/user.service';
+import { JwtAuthStrategy } from './jwt-auth/jwt-auth.strategy';
 
 @Module({
   imports: [
@@ -17,7 +18,6 @@ import { UserService } from '../users/user/user.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService<AppConfig, true>) => ({
-        global: true,
         secret: configService.get('jwt.secret', { infer: true }),
         signOptions: {
           expiresIn: configService.get('jwt.expiresIn', { infer: true }),
@@ -25,7 +25,7 @@ import { UserService } from '../users/user/user.service';
       }),
     }),
   ],
-  providers: [JwtAuthGuard, AuthService, GoogleOauthStrategy, UserService],
+  providers: [JwtAuthGuard, JwtAuthStrategy, AuthService, GoogleOauthStrategy, UserService],
   exports: [JwtAuthGuard],
   controllers: [AuthController, GoogleOauthController],
 })

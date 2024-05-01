@@ -9,12 +9,14 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { HttpExceptionFilter } from './filters/exception.filter';
 import { ResponseSerializerInterceptor } from '@qdea/swagger-serializer';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
+import cookieParser from 'cookie-parser'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true
   });
 
+  app.use(cookieParser())
   const configService = app.get(ConfigService);
 
   app.use(

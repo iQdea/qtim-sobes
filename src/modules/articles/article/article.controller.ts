@@ -1,30 +1,39 @@
-import { Controller, Post, Body, Param, ParseUUIDPipe, Request } from '@nestjs/common';
+import { Controller, Body, Param, ParseUUIDPipe } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { EmptyEndpointResponse, Endpoint, EndpointResponse } from '@qdea/swagger-serializer';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { ArticleResponseDto, ArticleResponseWithIdDto } from './dto/article-response.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from '../../auth/jwt-auth/jwt-auth.guard';
+import { AccessToken } from '../../../decorators/token.decorator';
 
 @ApiTags('Article')
 @Controller('article')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly jwtService: JwtService
+  ) {}
 
   @Endpoint('post', {
     request: {
       body: CreateArticleDto
     },
+    protect: {
+      enabled: true,
+      guards: [JwtAuthGuard]
+    },
     response: ArticleResponseDto,
     summary: 'Создать статью',
   })
-  @Post()
   async create(
     @Body('data') data: CreateArticleDto,
-    @Request() req
+    @AccessToken() token: string
   ): EndpointResponse<ArticleResponseDto> {
-    console.log(req.user)
-    const article = await this.articleService.create(data)
+    const { sub: userId } = await this.jwtService.decode(token);
+    const article = await this.articleService.create(data, userId);
     return {
       dto: ArticleResponseDto,
       data: article
@@ -59,6 +68,10 @@ export class ArticleController {
       body: UpdateArticleDto
     },
     response: ArticleResponseWithIdDto,
+    protect: {
+      enabled: true,
+      guards: [JwtAuthGuard]
+    },
     summary: 'Обновить (в тч опубликовать) статью по id'
   })
   @ApiParam({
@@ -80,7 +93,11 @@ export class ArticleController {
 
   @Endpoint('delete', {
     path: ':id',
-    summary: 'Удалить статью по id'
+    summary: 'Удалить статью по id',
+    protect: {
+      enabled: true,
+      guards: [JwtAuthGuard]
+    }
   })
   @ApiParam({
     name: 'id',

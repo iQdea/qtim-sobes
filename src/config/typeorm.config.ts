@@ -11,9 +11,9 @@ export function typeormConfig(): TypeOrmModuleOptions {
     autoLoadEntities: true,
     url: config().database,
     entities: [User, Article],
-    synchronize: false, // config().env === 'development',
+    synchronize: false,
     cache: config().cache,
-    migrations: ["*/migrations/*{.ts,.js}"]
+    migrations: ["dist/migrations/*.js"]
   }
 }
 export function getDataSourceOptions(): DataSourceOptions {

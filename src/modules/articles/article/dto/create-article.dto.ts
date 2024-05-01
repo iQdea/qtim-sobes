@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUUID, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 @Exclude()
 export class CreateArticleDto {
@@ -15,9 +15,4 @@ export class CreateArticleDto {
   @IsString()
   @Length(10, 255)
   description: string;
-
-  @Expose()
-  @ApiProperty()
-  @IsUUID()
-  authorId: string;
 }

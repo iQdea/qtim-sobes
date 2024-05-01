@@ -15,7 +15,9 @@ export class Article {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, (user) => user.articles)
+  @ManyToOne(() => User, (user) => user.articles, {
+    cascade: true
+  })
   author: User
 
   @Column({ name: 'published_at', nullable: true })

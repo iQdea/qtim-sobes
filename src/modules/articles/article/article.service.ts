@@ -14,11 +14,11 @@ export class ArticleService {
     private readonly userService: UserService
   ) {}
 
-  async create(article: CreateArticleDto): Promise<ArticleResponseDto> {
+  async create(article: CreateArticleDto, authorId: string): Promise<ArticleResponseDto> {
     const newArticle = this.articleRepository.create({
       title: article.title,
       description: article.description,
-      author: await this.userService.findOne(article.authorId)
+      author: await this.userService.findOne(authorId)
     });
     return await this.articleRepository.save(newArticle);
   }
