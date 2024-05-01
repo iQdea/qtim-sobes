@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GoogleOauthController } from './google-oauth.controller';
+import { GoogleOauthController } from '../google-oauth.controller';
 
 describe('GoogleOauthController', () => {
   let controller: GoogleOauthController;

@@ -14,6 +14,10 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
+  decodeJwt(payload) {
+    return this.jwtService.decode(payload);
+  }
+
   async signInUp(user) {
     if (!user) {
       throw new Error('Unauthenticated');
