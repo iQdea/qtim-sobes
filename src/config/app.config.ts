@@ -31,7 +31,7 @@ export interface AppConfig {
   },
   migrations: {
     isEnabled: boolean,
-    os?: string
+    autoRun: boolean
   }
 }
 
@@ -82,6 +82,7 @@ export default (): AppConfig => ({
     duration: 300e3
   },
   migrations: {
-    isEnabled: process.env.MIGRATIONS === 'true'
+    isEnabled: process.env.MIGRATIONS === 'true',
+    autoRun: process.env.NODE_ENV !== 'development'
   }
 });

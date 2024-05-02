@@ -9,9 +9,9 @@ import { CacheKeys } from './article/entities/article-cache.entity';
 @Injectable()
 export class ArticlesService extends PageService{
   constructor(
+    @Inject('DATA_SOURCE') private dataSource: DataSource,
     @Inject('ARTICLE_REPOSITORY')
     private articleRepository: Repository<Article>,
-    @Inject('DATA_SOURCE') private dataSource: DataSource,
     @Inject('ARTICLE_CACHE_REPOSITORY')
     private CacheKeysRepository: Repository<CacheKeys>
   ) {

@@ -11,8 +11,8 @@ import { CacheKeys } from './entities/article-cache.entity';
 @Injectable()
 export class ArticleService {
   constructor(
-    @Inject('ARTICLE_REPOSITORY') private articleRepository: Repository<Article>,
     @Inject('DATA_SOURCE') private dataSource: DataSource,
+    @Inject('ARTICLE_REPOSITORY') private articleRepository: Repository<Article>,
     @Inject('ARTICLE_CACHE_REPOSITORY') private CacheKeysRepository: Repository<CacheKeys>,
     private readonly userService: UserService,
   ) {}
@@ -76,7 +76,7 @@ export class ArticleService {
     await this.articleRepository.update({ uuid: article.uuid }, article);
     const caches = (await this.CacheKeysRepository.find({
       where: {
-        key: ILike(`%articles_find_%`)
+        key: ILike(`articles_find_%`)
       }
     })).map((x) => x.key)
     await this.dataSource.queryResultCache.remove([...caches, `article_find_${article.uuid}`])
@@ -86,7 +86,7 @@ export class ArticleService {
   async remove(id: string): Promise<void> {
     const caches = (await this.CacheKeysRepository.find({
       where: {
-        key: ILike(`%articles_find_%`)
+        key: ILike(`articles_find_%`)
       }
     })).map((x) => x.key)
     await this.dataSource.queryResultCache.remove([...caches, `article_find_${id}`])

@@ -14,13 +14,8 @@ export function typeormConfig(): TypeOrmModuleOptions {
     entities: [User, Article, CacheKeys],
     synchronize: false,
     cache: config().cache,
-    migrations: config().migrations.isEnabled
-      ? (
-        config().env === 'production'
-          ? ["dist/src/migrations/*.js"]
-          : ["src/migrations/*.ts"]
-      )
-      : [],
+    migrationsRun: config().migrations.autoRun,
+    migrations: config().migrations.isEnabled ? [`dist/migrations/**/*{.ts,.js}`] : []
   }
 }
 export function getDataSourceOptions(): DataSourceOptions {
