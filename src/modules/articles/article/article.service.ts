@@ -26,7 +26,8 @@ export class ArticleService {
   async read(id: string): Promise<ArticleResponseWithIdDto> {
     return await this.articleRepository.findOneOrFail({
       where: { uuid: id },
-      relations: ['author']
+      relations: ['author'],
+      cache: true
     });
   }
 

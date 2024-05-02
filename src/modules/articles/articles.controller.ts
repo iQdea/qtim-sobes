@@ -1,8 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Query } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
-import { CollectionResponse, Endpoint } from '@qdea/swagger-serializer';
+import { Endpoint } from '@qdea/swagger-serializer';
 import { ArticleResponseWithIdDto } from './article/dto/article-response.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Generic, GenericFilter, QueryGeneric } from '../../filters/generic.filter';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -14,11 +15,12 @@ export class ArticlesController {
     response: ArticleResponseWithIdDto,
     collection: true
   })
-  async findAll(): CollectionResponse<ArticleResponseWithIdDto> {
-    const articles = await this.articlesService.findAll()
-    return {
-      dto: ArticleResponseWithIdDto,
-      data: articles
-    };
+  async findAll(@Query() filter: QueryGeneric) {
+    const articles = await this.articlesService.findAll(filter)
+    console.log(articles)
+    // return {
+    //   dto: ArticleResponseWithIdDto,
+    //   data: articles
+    // };
   }
 }

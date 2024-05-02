@@ -74,7 +74,7 @@ export default (): AppConfig => ({
   },
   cache: {
     type: 'ioredis',
-    alwaysEnabled: false,
+    alwaysEnabled: true,
     duration: 5 * 60 * 1000
   }
 });
