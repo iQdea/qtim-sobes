@@ -28,6 +28,9 @@ export interface AppConfig {
     type: "database" | "redis" | "ioredis" | "ioredis/cluster",
     alwaysEnabled: boolean,
     duration: number;
+  },
+  migrations: {
+    isEnabled: boolean,
   }
 }
 
@@ -76,5 +79,8 @@ export default (): AppConfig => ({
     type: 'ioredis',
     alwaysEnabled: true,
     duration: 5 * 60 * 1000
+  },
+  migrations: {
+    isEnabled: process.env.MIGRATIONS === 'true',
   }
 });
