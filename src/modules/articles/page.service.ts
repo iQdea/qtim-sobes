@@ -14,7 +14,7 @@ export class PageService {
     return order;
   }
 
-  protected paginate<T>(
+  protected async paginate<T>(
     repository: Repository<T>,
     filter: GenericFilter,
     where: FindOptionsWhere<T>,
@@ -22,11 +22,10 @@ export class PageService {
   ) {
     return repository.findAndCount({
       order: this.createOrderQuery(filter),
-      skip: (filter.page - 1) * (filter.pageSize + 1),
+      skip: (filter.page - 1) * (filter.pageSize),
       take: filter.pageSize,
       where: where,
-      relations,
-      cache: true
+      relations
     });
   }
 }

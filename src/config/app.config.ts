@@ -26,11 +26,12 @@ export interface AppConfig {
   },
   cache: {
     type: "database" | "redis" | "ioredis" | "ioredis/cluster",
-    alwaysEnabled: boolean,
+    alwaysEnabled?: boolean,
     duration: number;
   },
   migrations: {
     isEnabled: boolean,
+    os?: string
   }
 }
 
@@ -77,10 +78,10 @@ export default (): AppConfig => ({
   },
   cache: {
     type: 'ioredis',
-    alwaysEnabled: true,
-    duration: 5 * 60 * 1000
+    alwaysEnabled: false,
+    duration: 300e3
   },
   migrations: {
-    isEnabled: process.env.MIGRATIONS === 'true',
+    isEnabled: process.env.MIGRATIONS === 'true'
   }
 });

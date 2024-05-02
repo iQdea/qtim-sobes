@@ -32,7 +32,8 @@ import { AppConfig } from '../../../config/app.config';
     ArticleService
   ],
   exports: [
-    ...articleProviders
+    ...articleProviders,
+    DatabaseModule
   ]
 })
 export class ArticleModule {}

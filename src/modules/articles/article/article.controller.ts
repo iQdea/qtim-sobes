@@ -25,17 +25,17 @@ export class ArticleController {
       enabled: true,
       guards: [JwtAuthGuard]
     },
-    response: ArticleResponseDto,
+    response: ArticleResponseWithIdDto,
     summary: 'Создать статью',
   })
   async create(
     @Body('data') data: CreateArticleDto,
     @AccessToken() token: string
-  ): EndpointResponse<ArticleResponseDto> {
+  ): EndpointResponse<ArticleResponseWithIdDto> {
     const { sub: userId } = await this.jwtService.decode(token);
     const article = await this.articleService.create(data, userId);
     return {
-      dto: ArticleResponseDto,
+      dto: ArticleResponseWithIdDto,
       data: article
     }
   }
