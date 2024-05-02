@@ -13,7 +13,13 @@ export function typeormConfig(): TypeOrmModuleOptions {
     entities: [User, Article],
     synchronize: false,
     cache: config().cache,
-    migrations: ["dist/migrations/*.js"]
+    migrations: config().migrations.isEnabled
+      ? (
+        config().env === 'production'
+          ? ["dist/migrations/*.js"]
+          : ["src/migrations/*.ts"]
+      )
+      : [],
   }
 }
 export function getDataSourceOptions(): DataSourceOptions {
