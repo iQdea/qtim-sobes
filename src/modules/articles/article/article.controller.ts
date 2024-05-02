@@ -23,7 +23,10 @@ export class ArticleController {
     },
     protect: {
       enabled: true,
-      guards: [JwtAuthGuard]
+      guards: [JwtAuthGuard],
+      security: {
+        name: 'bearer'
+      }
     },
     response: ArticleResponseWithIdDto,
     summary: 'Создать статью',
@@ -70,7 +73,10 @@ export class ArticleController {
     response: ArticleResponseWithIdDto,
     protect: {
       enabled: true,
-      guards: [JwtAuthGuard]
+      guards: [JwtAuthGuard],
+      security: {
+        name: 'bearer'
+      }
     },
     summary: 'Обновить (в тч опубликовать) статью по id'
   })

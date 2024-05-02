@@ -6,14 +6,14 @@ import { Article } from './entities/article.entity';
 import { UserService } from '../../users/user/user.service';
 import { ArticleResponseWithIdDto } from './dto/article-response.dto';
 import { merge } from 'lodash';
-import { ArticleCache } from './entities/article-cache.entity';
+import { CacheKeys } from './entities/article-cache.entity';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @Inject('ARTICLE_REPOSITORY') private articleRepository: Repository<Article>,
     @Inject('DATA_SOURCE') private dataSource: DataSource,
-    @Inject('ARTICLE_CACHE_REPOSITORY') private articleCacheRepository: Repository<ArticleCache>,
+    @Inject('ARTICLE_CACHE_REPOSITORY') private CacheKeysRepository: Repository<CacheKeys>,
     private readonly userService: UserService,
   ) {}
 
@@ -23,7 +23,7 @@ export class ArticleService {
       description: article.description,
       author: await this.userService.findOne(authorId)
     });
-    const caches = (await this.articleCacheRepository.find({
+    const caches = (await this.CacheKeysRepository.find({
       where: {
         key: ILike(`%articles_find_%`)
       }
@@ -74,7 +74,7 @@ export class ArticleService {
     }
     article = merge(article, updateData)
     await this.articleRepository.update({ uuid: article.uuid }, article);
-    const caches = (await this.articleCacheRepository.find({
+    const caches = (await this.CacheKeysRepository.find({
       where: {
         key: ILike(`%articles_find_%`)
       }
@@ -84,7 +84,7 @@ export class ArticleService {
   }
 
   async remove(id: string): Promise<void> {
-    const caches = (await this.articleCacheRepository.find({
+    const caches = (await this.CacheKeysRepository.find({
       where: {
         key: ILike(`%articles_find_%`)
       }

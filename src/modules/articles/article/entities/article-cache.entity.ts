@@ -5,9 +5,9 @@ import {
 
 @Entity({
   schema: 'public',
-  name: 'article-cache'
+  name: 'cache-keys'
 })
-export class ArticleCache {
+export class CacheKeys {
   @PrimaryColumn()
   key: string;
 }

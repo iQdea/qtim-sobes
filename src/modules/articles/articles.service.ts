@@ -4,7 +4,7 @@ import { Article } from './article/entities/article.entity';
 import { PageService } from './page.service';
 import { Generic, QueryGeneric, valueToBoolean } from '../../filters/generic.filter';
 import { PaginationArticleResponse } from './article/dto/article-response.dto';
-import { ArticleCache } from './article/entities/article-cache.entity';
+import { CacheKeys } from './article/entities/article-cache.entity';
 
 @Injectable()
 export class ArticlesService extends PageService{
@@ -13,7 +13,7 @@ export class ArticlesService extends PageService{
     private articleRepository: Repository<Article>,
     @Inject('DATA_SOURCE') private dataSource: DataSource,
     @Inject('ARTICLE_CACHE_REPOSITORY')
-    private articleCacheRepository: Repository<ArticleCache>
+    private CacheKeysRepository: Repository<CacheKeys>
   ) {
     super()
   }
@@ -58,7 +58,7 @@ export class ArticlesService extends PageService{
       duration: 300e3
     })
 
-    await this.articleCacheRepository.save({
+    await this.CacheKeysRepository.save({
       key
     });
 

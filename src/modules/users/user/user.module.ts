@@ -12,6 +12,7 @@ import { userProviders } from './user.providers';
     UserService
   ],
   exports: [
+    DatabaseModule,
     ...userProviders,
   ]
 })
