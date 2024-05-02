@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Article } from './article/entities/article.entity';
 import { PageService } from './page.service';
-import { Generic, QueryGeneric } from '../../filters/generic.filter';
+import { Generic, QueryGeneric, valueToBoolean } from '../../filters/generic.filter';
+import { PaginationArticleResponse } from './article/dto/article-response.dto';
 
 @Injectable()
 export class ArticlesService extends PageService{
@@ -13,36 +14,34 @@ export class ArticlesService extends PageService{
     super()
   }
 
-  async findAll(filter: QueryGeneric) {
-    console.log(filter)
+  async findAll(filter: QueryGeneric): Promise<PaginationArticleResponse> {
     const { ...params } = filter;
 
-    const res = await this.articleRepository.find({
-      order: this.createOrderQuery(filter),
-      skip: (filter.page - 1) * (filter.pageSize + 1),
-      take: filter.pageSize,
-      where: ArticlesService.createWhereQuery(params),
-      relations: ['author'],
-      cache: true
-    })
-    console.log(res)
-    // return await this.paginate(
-    //   this.articleRepository,
-    //   filter,
-    //   ArticlesService.createWhereQuery(params),
-    //   ['author']
-    // );
+    const page = await this.paginate(
+      this.articleRepository,
+      filter,
+      ArticlesService.createWhereQuery(params),
+      ['author']
+    );
+    return {
+      articles: page[0],
+      meta: {
+        itemCount: page[0].length,
+        currentPage: params.page,
+        itemsPerPage: params.pageSize
+      }
+    }
   }
 
   private static createWhereQuery(params: Generic) {
     const where: any = {};
 
     if (params.authorId) {
-      where.author.id = params.authorId
+      where.author = { uuid: params.authorId }
     }
 
-    if (params.published) {
-      where.publishedAt = Not(null)
+    if (valueToBoolean(params.published)) {
+      where.publishedAt = Not(IsNull())
     }
 
     return where;

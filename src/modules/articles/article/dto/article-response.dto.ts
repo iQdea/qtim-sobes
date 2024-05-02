@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Nested } from '@qdea/swagger-serializer';
 import { UserResponseWithIdDto } from '../../../users/user/dto/user-response.dto';
@@ -34,4 +34,35 @@ export class ArticleResponseWithIdDto extends ArticleResponseDto {
   @Expose()
   @ApiProperty()
   uuid: string;
+}
+
+@Exclude()
+export class PaginationMeta {
+  @Expose()
+  @ApiProperty()
+  itemCount: number
+
+  @Expose()
+  @ApiProperty()
+  @Transform(({ value }) => parseInt(value))
+  currentPage: number
+
+  @Expose()
+  @ApiProperty()
+  @Transform(({ value }) => parseInt(value))
+  itemsPerPage: number
+}
+
+
+@Exclude()
+export class PaginationArticleResponse {
+  @Expose()
+  @ApiProperty()
+  @Nested(ArticleResponseWithIdDto, true)
+  articles: ArticleResponseWithIdDto[]
+
+  @Expose()
+  @ApiProperty()
+  @Nested(PaginationMeta)
+  meta: PaginationMeta
 }

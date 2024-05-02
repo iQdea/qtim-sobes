@@ -20,7 +20,7 @@ export class PageService {
     where: FindOptionsWhere<T>,
     relations?: string[]
   ) {
-    return repository.find({
+    return repository.findAndCount({
       order: this.createOrderQuery(filter),
       skip: (filter.page - 1) * (filter.pageSize + 1),
       take: filter.pageSize,

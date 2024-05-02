@@ -20,7 +20,7 @@ function toNumber(value: any, options: { default: number, min: number }): number
   return result;
 }
 
-function valueToBoolean(value: any) {
+export function valueToBoolean(value: any) {
   if (value === null || value === undefined) {
     return undefined;
   }
