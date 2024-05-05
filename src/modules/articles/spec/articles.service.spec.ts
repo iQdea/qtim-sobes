@@ -29,24 +29,25 @@ describe('ArticlesService', () => {
             };
           },
           storeInCache: jest.fn(),
+          isExpired: jest.fn()
         }
       },
     }, {
       provide: 'ARTICLE_REPOSITORY',
       useValue: {
         findAndCount: () => [articles, articles.length],
-      },
-    }, {
-      provide: 'ARTICLE_CACHE_REPOSITORY',
-      useValue: {
-        save: jest.fn(),
+        metadata: () => {
+          return {
+            propertiesMap: {}
+          }
+        }
       },
     }];
     const module: TestingModule = await Test.createTestingModule({
       providers: [ArticlesService, ...externalProviders],
     }).compile();
 
-    service = module.get<ArticlesService>(ArticlesService);
+    service = module.get(ArticlesService);
   });
 
   it('should be defined', () => {
@@ -60,7 +61,7 @@ describe('ArticlesService', () => {
         published: true,
         page: 1,
         pageSize: 5,
-      });
+      } as any);
       expect(result.articles).toStrictEqual(articles);
     });
 
@@ -68,7 +69,7 @@ describe('ArticlesService', () => {
       const result = await service.findAll({
         page: 1,
         pageSize: 3,
-      });
+      } as any);
       expect(result.articles).toStrictEqual(articles);
     });
   });

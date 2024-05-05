@@ -1,4 +1,4 @@
-import { Controller, Body, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Param, ParseUUIDPipe } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -8,6 +8,7 @@ import { ArticleResponseDto, ArticleResponseWithIdDto } from './dto/article-resp
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from '../../auth/jwt-auth/jwt-auth.guard';
 import { AccessToken } from '../../../decorators/token.decorator';
+import { ErrorResponse } from '../../../dto/index.dto';
 
 @ApiTags('Article')
 @Controller('article')
@@ -28,7 +29,13 @@ export class ArticleController {
         name: 'bearer'
       }
     },
-    response: ArticleResponseWithIdDto,
+    response: [
+      [HttpStatus.OK, { schema: { description: 'Удачное создание' } }, ArticleResponseWithIdDto],
+      [HttpStatus.NOT_FOUND, { schema: { description: 'Статья или схема статей не найдены' }}, ErrorResponse],
+      [HttpStatus.INTERNAL_SERVER_ERROR, { schema: { description: 'Системная ошибка' }}, ErrorResponse],
+      [HttpStatus.BAD_REQUEST, { schema: { description: 'Неверные параметры запроса'}}, ErrorResponse],
+      [HttpStatus.UNAUTHORIZED, { schema: { description: 'Требуется авторизация'}}, ErrorResponse]
+    ],
     summary: 'Создать статью',
   })
   async create(
@@ -45,7 +52,12 @@ export class ArticleController {
 
   @Endpoint('get', {
     path: ':id',
-    response: ArticleResponseDto,
+    response: [
+      [HttpStatus.OK, { schema: { description: 'Удачное получение' } }, ArticleResponseDto],
+      [HttpStatus.NOT_FOUND, { schema: { description: 'Статья или схема статей не найдены' }}, ErrorResponse],
+      [HttpStatus.INTERNAL_SERVER_ERROR, { schema: { description: 'Системная ошибка' }}, ErrorResponse],
+      [HttpStatus.BAD_REQUEST, { schema: { description: 'Неверные параметры запроса'}}, ErrorResponse]
+    ],
     summary: 'Прочитать статью по id'
   })
   @ApiParam({
@@ -70,7 +82,13 @@ export class ArticleController {
     request: {
       body: UpdateArticleDto
     },
-    response: ArticleResponseWithIdDto,
+    response: [
+      [HttpStatus.OK, { schema: { description: 'Удачное обновление' } }, ArticleResponseWithIdDto],
+      [HttpStatus.NOT_FOUND, { schema: { description: 'Статья или схема статей не найдены' }}, ErrorResponse],
+      [HttpStatus.INTERNAL_SERVER_ERROR, { schema: { description: 'Системная ошибка' }}, ErrorResponse],
+      [HttpStatus.BAD_REQUEST, { schema: { description: 'Неверные параметры запроса'}}, ErrorResponse],
+      [HttpStatus.UNAUTHORIZED, { schema: { description: 'Требуется авторизация'}}, ErrorResponse]
+    ],
     protect: {
       enabled: true,
       guards: [JwtAuthGuard],
@@ -100,6 +118,12 @@ export class ArticleController {
   @Endpoint('delete', {
     path: ':id',
     summary: 'Удалить статью по id',
+    response: [
+      [HttpStatus.OK, { schema: { description: 'Удачное удаление' } }],
+      [HttpStatus.NOT_FOUND, { schema: { description: 'Статья или схема статей не найдены' }}, ErrorResponse],
+      [HttpStatus.INTERNAL_SERVER_ERROR, { schema: { description: 'Системная ошибка' }}, ErrorResponse],
+      [HttpStatus.BAD_REQUEST, { schema: { description: 'Неверные параметры запроса'}}, ErrorResponse]
+    ],
     protect: {
       enabled: true,
       guards: [JwtAuthGuard]

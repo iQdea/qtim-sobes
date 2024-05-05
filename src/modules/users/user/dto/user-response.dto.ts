@@ -11,10 +11,8 @@ export class UserResponseDto {
   @ApiProperty()
   email: string;
 
-  @ApiProperty()
   createdAt: Date;
 
-  @ApiProperty()
   updatedAt: Date;
 }
 

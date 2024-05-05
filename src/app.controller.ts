@@ -7,13 +7,10 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Endpoint('get', {
-    summary: 'default path',
-    default_response: {
-      status: HttpStatus.OK,
-      schema: {
-        type: 'string'
-      }
-    }
+    summary: 'Корневой путь',
+    response: [
+      [HttpStatus.OK, { schema: { description: 'Удачное получение', type: 'string'} }]
+    ]
   })
   async getHello(): Promise<string> {
     return await this.appService.getHello();

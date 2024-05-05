@@ -1,5 +1,8 @@
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import * as Joi from 'joi';
+import { CustomQueryResultCache } from './cache/cache.result';
+import { DataSource } from 'typeorm/data-source/DataSource';
+import { QueryResultCache } from 'typeorm/cache/QueryResultCache';
 
 export interface OauthProvider {
   clientID: string;
@@ -25,9 +28,10 @@ export interface AppConfig {
     expiresIn: string;
   },
   cache: {
-    type: "database" | "redis" | "ioredis" | "ioredis/cluster",
+    type: "redis" | "ioredis" | "ioredis/cluster",
     alwaysEnabled?: boolean,
     duration: number;
+    provider?: (connection: DataSource) => QueryResultCache
   },
   migrations: {
     isEnabled: boolean,
@@ -79,7 +83,10 @@ export default (): AppConfig => ({
   cache: {
     type: 'ioredis',
     alwaysEnabled: false,
-    duration: 300e3
+    duration: 300e3,
+    provider(dataSource) {
+      return new CustomQueryResultCache(dataSource, 'ioredis')
+    }
   },
   migrations: {
     isEnabled: process.env.MIGRATIONS === 'true',

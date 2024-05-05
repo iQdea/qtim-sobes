@@ -1,39 +1,51 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { Article } from './article/entities/article.entity';
 import { PageService } from './page.service';
 import { Generic, QueryGeneric, valueToBoolean } from '../../filters/generic.filter';
 import { PaginationArticleResponse } from './article/dto/article-response.dto';
-import { CacheKeys } from './article/entities/article-cache.entity';
+import { CustomQueryResultCache } from '../../config/cache/cache.result';
+import { createHash } from 'crypto';
 
 @Injectable()
-export class ArticlesService extends PageService{
+export class ArticlesService extends PageService {
+  private readonly cache: CustomQueryResultCache;
   constructor(
     @Inject('DATA_SOURCE') private dataSource: DataSource,
     @Inject('ARTICLE_REPOSITORY')
-    private articleRepository: Repository<Article>,
-    @Inject('ARTICLE_CACHE_REPOSITORY')
-    private CacheKeysRepository: Repository<CacheKeys>
+    private articleRepository: Repository<Article>
   ) {
-    super()
+    super();
+    this.cache = dataSource.queryResultCache as CustomQueryResultCache;
   }
 
   async findAll(filter: QueryGeneric): Promise<PaginationArticleResponse> {
     const { ...params } = filter;
 
-    const key = `articles_find_${params.page - 1}_${params.pageSize}`
-    const query = JSON.stringify(filter)
-    const res = await this.dataSource.queryResultCache.getFromCache({
+    const fieldsOfArticle = Object.keys(
+      this.articleRepository.metadata.propertiesMap || {},
+    ).filter(x => x !== 'author')
+
+    if (params.orderBy && !fieldsOfArticle.includes(params.orderBy)) {
+      throw new BadRequestException(`orderBy must be one of [${fieldsOfArticle}]`)
+    }
+
+    const uniqueString = JSON.stringify(params);
+    const hash = createHash('sha256').update(uniqueString).digest('hex');
+    const keyString = hash.slice(0, 16);
+    const key = `articles_find_${keyString}`;
+    const cached = await this.cache.getFromCache({
       identifier: key,
-      query,
       duration: 300e3
     })
 
-    if (res) {
+    const expiredCache = cached ? this.cache.isExpired(cached) : true;
+
+    if (cached && !expiredCache) {
       return {
-        articles: res.result[0],
+        articles: cached.result[0],
         meta: {
-          itemCount: res.result[0].length,
+          itemCount: cached.result[0].length,
           currentPage: params.page,
           itemsPerPage: params.pageSize
         }
@@ -47,20 +59,14 @@ export class ArticlesService extends PageService{
       ['author']
     );
 
-    await this.dataSource.queryResultCache.storeInCache({
+    await this.cache.storeInCache({
       identifier: key,
       result: page,
-      query,
       duration: 300e3
     }, {
       identifier: key,
-      query,
       duration: 300e3
     })
-
-    await this.CacheKeysRepository.save({
-      key
-    });
 
     return {
       articles: page[0],

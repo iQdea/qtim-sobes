@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
@@ -7,15 +7,10 @@ export enum SortOrder {
   DESC = 'DESC',
 }
 
-function toNumber(value: any, options: { default: number, min: number }): number {
-  const defaultValue = options.default;
-  const minValue = options.min;
+function toNumber(value: any): number {
   let result = Number(value);
   if (isNaN(result)) {
-    result = defaultValue;
-  }
-  if (options.min && result < minValue) {
-    result = minValue;
+    return undefined;
   }
   return result;
 }
@@ -40,19 +35,22 @@ export function valueToBoolean(value: any) {
 export class GenericFilter {
   @Expose()
   @ApiProperty()
-  @Transform(({ value }) => toNumber(value, { default: 1, min: 1}))
+  @Transform(({ value }) => toNumber(value))
+  @Min(1)
   @IsNumber({}, { message: ' "page" atrribute should be a number' })
   page: number;
 
   @Expose()
   @ApiProperty()
-  @Transform(({ value }) => toNumber(value, { default: 10, min: 1 }))
+  @Transform(({ value }) => toNumber(value))
+  @Min(1)
   @IsNumber({}, { message: ' "pageSize" attribute should be a number ' })
   pageSize: number;
 
   @Expose()
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
   orderBy?: string;
 
   @Expose()

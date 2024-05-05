@@ -39,6 +39,8 @@ describe('ArticleService', () => {
           },
           storeInCache: jest.fn(),
           remove: jest.fn(),
+          findAll: () => [],
+          isExpired: jest.fn()
         }
       },
     }, {
@@ -53,13 +55,6 @@ describe('ArticleService', () => {
         delete: jest.fn(),
       },
     }, {
-      provide: 'ARTICLE_CACHE_REPOSITORY',
-      useValue: {
-        find: () => [{
-          key: 'articles_find_someId'
-        }],
-      },
-    }, {
       provide: UserService,
       useValue: {
         findOne: jest.fn(),
@@ -70,7 +65,7 @@ describe('ArticleService', () => {
       providers: [ArticleService, ...externalProviders],
     }).compile();
 
-    service = module.get<ArticleService>(ArticleService);
+    service = module.get(ArticleService);
   });
 
   it('should be defined', () => {

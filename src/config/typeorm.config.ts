@@ -3,7 +3,6 @@ import { Article } from '../modules/articles/article/entities/article.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
 import { DataSourceOptions } from 'typeorm';
 import config from './app.config';
-import { CacheKeys } from '../modules/articles/article/entities/article-cache.entity';
 
 export function typeormConfig(): TypeOrmModuleOptions {
   return {
@@ -11,7 +10,7 @@ export function typeormConfig(): TypeOrmModuleOptions {
     logging: config().env === 'development',
     autoLoadEntities: true,
     url: config().database,
-    entities: [User, Article, CacheKeys],
+    entities: [User, Article],
     synchronize: false,
     cache: config().cache,
     migrationsRun: config().migrations.autoRun,

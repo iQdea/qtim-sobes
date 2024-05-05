@@ -4,6 +4,7 @@ services:
   postgres:
     env_file:
       - ../.env
+    container_name: postgres
     image: postgres
     ports:
       - '5432:5432'

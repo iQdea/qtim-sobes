@@ -31,7 +31,7 @@ describe('ArticleController', () => {
       }],
     }).compile();
 
-    controller = module.get<ArticleController>(ArticleController);
+    controller = module.get(ArticleController);
   });
 
   it('should be defined', () => {

@@ -1,21 +1,23 @@
 import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { DataSource, ILike, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Article } from './entities/article.entity';
 import { UserService } from '../../users/user/user.service';
 import { ArticleResponseWithIdDto } from './dto/article-response.dto';
 import { merge } from 'lodash';
-import { CacheKeys } from './entities/article-cache.entity';
+import { CustomQueryResultCache } from '../../../config/cache/cache.result';
 
 @Injectable()
 export class ArticleService {
+  private readonly cache: CustomQueryResultCache;
   constructor(
     @Inject('DATA_SOURCE') private dataSource: DataSource,
     @Inject('ARTICLE_REPOSITORY') private articleRepository: Repository<Article>,
-    @Inject('ARTICLE_CACHE_REPOSITORY') private CacheKeysRepository: Repository<CacheKeys>,
     private readonly userService: UserService,
-  ) {}
+  ) {
+    this.cache = dataSource.queryResultCache as CustomQueryResultCache;
+  }
 
   async create(article: CreateArticleDto, authorId: string): Promise<ArticleResponseWithIdDto> {
     const newArticle = this.articleRepository.create({
@@ -23,23 +25,21 @@ export class ArticleService {
       description: article.description,
       author: await this.userService.findOne(authorId)
     });
-    const caches = (await this.CacheKeysRepository.find({
-      where: {
-        key: ILike(`%articles_find_%`)
-      }
-    })).map((x) => x.key)
-    await this.dataSource.queryResultCache.remove(caches);
+    const caches = await this.cache.findAll("articles_find_*");
+    await this.cache.remove(caches);
     return await this.articleRepository.save(newArticle);
   }
 
   async read(id: string): Promise<ArticleResponseWithIdDto> {
     const key = `article_find_${id}`
-    const cache = await this.dataSource.queryResultCache.getFromCache({
+    const cached = await this.cache.getFromCache({
       identifier: key,
       duration: 300e3
     })
-    if (cache) {
-      return cache.result;
+    const expiredCache = cached ? this.cache.isExpired(cached) : true;
+
+    if (cached && !expiredCache) {
+      return cached.result;
     }
 
     const res = await this.articleRepository.findOneOrFail({
@@ -47,7 +47,7 @@ export class ArticleService {
       relations: ['author']
     });
 
-    await this.dataSource.queryResultCache.storeInCache({
+    await this.cache.storeInCache({
       identifier: key,
       result: res,
       duration: 300e3
@@ -74,22 +74,14 @@ export class ArticleService {
     }
     article = merge(article, updateData)
     await this.articleRepository.update({ uuid: article.uuid }, article);
-    const caches = (await this.CacheKeysRepository.find({
-      where: {
-        key: ILike(`articles_find_%`)
-      }
-    })).map((x) => x.key)
-    await this.dataSource.queryResultCache.remove([...caches, `article_find_${article.uuid}`])
+    const caches = await this.cache.findAll("articles_find_*");
+    await this.cache.remove([...caches, `article_find_${article.uuid}`])
     return article;
   }
 
   async remove(id: string): Promise<void> {
-    const caches = (await this.CacheKeysRepository.find({
-      where: {
-        key: ILike(`articles_find_%`)
-      }
-    })).map((x) => x.key)
-    await this.dataSource.queryResultCache.remove([...caches, `article_find_${id}`])
+    const caches = await this.cache.findAll("articles_find_*");
+    await this.cache.remove([...caches, `article_find_${id}`])
     await this.articleRepository.delete({ uuid: id })
   }
 }
